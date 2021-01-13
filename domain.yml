@@ -42,6 +42,11 @@ entities:
 - account_type
 - handoff_to
 slots:
+  credit_card:
+    type: unfeaturized
+  amount_transferred:
+    type: unfeaturized
+    initial_value: 0
   PERSON:
     type: unfeaturized
   account_balance:
@@ -101,6 +106,10 @@ responses:
   utter_transfer_charge:
   - text: You are entitled to six transfers within a statement cycle before being
       charged. For subsequent transfers you will be charged {currency}10 per transaction.
+  utter_ask_cc_payment_form_payment_amount:
+  - text: How much would you like to payment?
+  utter_ask_cc_payment_form_time:
+  - text: When would you like to schedule the transaction? 
   utter_ask_cc_payment_form_credit_card:
   - text: Towards which credit card account do you want to make a payment?
   utter_ask_transact_search_form_vendor_name:
@@ -204,6 +213,9 @@ actions:
 - action_recipients
 - action_handoff
 - action_handoff_options
+- action_account_balance
+- utter_greet
 forms:
 - transfer_form
 - transact_search_form
+- cc_payment_form

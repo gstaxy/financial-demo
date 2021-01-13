@@ -49,7 +49,7 @@ class PayCCForm(FormAction):
     def name(self) -> Text:
         """Unique identifier of the form"""
         ##TODO: set the name of the form (cc_payment_form)
-        pass
+        return "cc_payment_form"
 
     def request_next_slot(
         self,
@@ -65,7 +65,7 @@ class PayCCForm(FormAction):
         """A list of required slots that the form has to fill"""
 
         ##TODO: define required slots
-        return []
+        return ["credit_card", "payment_amount", "time", "confirm"]
 
     def slot_mappings(self) -> Dict[Text, Union[Dict, List[Dict]]]:
         """A dictionary to map required slots to
@@ -82,6 +82,8 @@ class PayCCForm(FormAction):
             ],
             "confirm": [
                 ##TODO: set the slot mapping for the slot "confirm" based on the intent value
+                self.from_intent(value=True, intent="affirm"),
+                self.from_intent(value=False, intent="deny")
             ],
         }
 
@@ -138,7 +140,12 @@ class PayCCForm(FormAction):
         """Validate credit_card value."""
 
         ## TODO: validate the credit card 
-        pass
+        cc_balance = tracker.get_slot("credit_card_balance")
+        if value and value.lower() in list(cc_balance.keys()):
+            return {"credit_card": value.title()}
+        else:
+            dispatcher.utter_message(template = "utter_no_creditcard")
+            return {"credit_card": None}
 
 
     def validate_time(
@@ -218,17 +225,17 @@ class PayCCForm(FormAction):
 class ActionAccountBalance(Action):
     def name(self):
         ## TODO: Define custom action name
-        pass
+        return "action_account_balance"
 
 
     def run(self, dispatcher, tracker, domain):
         account_balance = float(tracker.get_slot("account_balance"))
         ## TODO: return the value of the slot "amount_transferred"
-        #amount = 
+        amount = tracker.get_slot("amount_transferred")
         if amount:
             amount = float(tracker.get_slot("amount_transferred"))
             ## TODO: calculate the new account balance
-            #init_account_balance = 
+            init_account_balance = account_balance + amount
 
             dispatcher.utter_message(
                 template="utter_changed_account_balance",
@@ -236,7 +243,7 @@ class ActionAccountBalance(Action):
                 account_balance=f"{account_balance:.2f}",
             )
             ## TODO: reset the value of the slot "payment_amount" to None
-            return pass
+            return [SlotSet("payment_amount", None)]
 
         else:
             dispatcher.utter_message(
